@@ -25,13 +25,8 @@ build/
 # Streamlit
 .streamlit/secrets.toml
 
-# Data and models (large files – generate with scripts)
+# Data generated during training
 data/signal_dataset.csv
-models/signal_classifier.joblib
-models/evaluation_results.json
-
-# Keep metadata
-!models/feature_metadata.json
 
 # OS
 .DS_Store

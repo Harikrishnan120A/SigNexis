@@ -26,21 +26,26 @@ import plotly.express as px
 import streamlit as st
 
 # ── Project modules ────────────────────────────────────────────────────────────
-from dsp.signal_generator import generate_signal, SIGNAL_CLASSES
-from dsp.sampling import analyse_sampling
-from dsp.fft_analysis import compute_fft
-from dsp.features import extract_features, FEATURE_NAMES
-from dsp.filters import (
-    apply_recommended_filter,
-    FILTER_RECOMMENDATIONS,
-    low_pass_filter,
-    high_pass_filter,
-    band_pass_filter,
-    notch_filter,
-)
-from dsp.quality import compute_quality, snr_improvement, estimate_snr_rms_ratio
-from ml.predict import predict_signal, MODEL_PATH
-from audio.wav_processor import load_wav
+PROJECT_IMPORT_ERROR: ModuleNotFoundError | None = None
+try:
+    from dsp.signal_generator import generate_signal, SIGNAL_CLASSES
+    from dsp.sampling import analyse_sampling
+    from dsp.fft_analysis import compute_fft
+    from dsp.features import extract_features, FEATURE_NAMES
+    from dsp.filters import (
+        apply_recommended_filter,
+        FILTER_RECOMMENDATIONS,
+        low_pass_filter,
+        high_pass_filter,
+        band_pass_filter,
+        notch_filter,
+    )
+    from dsp.quality import compute_quality, snr_improvement, estimate_snr_rms_ratio
+    from ml.predict import predict_signal, MODEL_PATH
+    from audio.wav_processor import load_wav
+except ModuleNotFoundError as exc:
+    PROJECT_IMPORT_ERROR = exc
+    MODEL_PATH = ROOT / "models" / "signal_classifier.joblib"
 
 MODELS_DIR = ROOT / "models"
 EVAL_PATH = MODELS_DIR / "evaluation_results.json"
@@ -52,6 +57,30 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+REQUIRED_ARTIFACTS = (
+    MODEL_PATH,
+    MODELS_DIR / "evaluation_results.json",
+)
+missing_artifacts = [path for path in REQUIRED_ARTIFACTS if not path.exists()]
+
+if PROJECT_IMPORT_ERROR or missing_artifacts:
+    st.error("SigNexis deployment is incomplete in this environment.")
+    if PROJECT_IMPORT_ERROR:
+        st.code(f"Missing Python module: {PROJECT_IMPORT_ERROR}", language="text")
+    if missing_artifacts:
+        st.code(
+            "Missing required artifact(s):\n"
+            + "\n".join(str(path.relative_to(ROOT)) for path in missing_artifacts),
+            language="text",
+        )
+    st.info(
+        "For Streamlit Community Cloud, deploy from repository "
+        "'Harikrishnan120A/SigNexis' (branch 'main', main file 'app.py') and make sure "
+        "the runtime includes dsp/, ml/, audio/ plus models/signal_classifier.joblib "
+        "and models/evaluation_results.json."
+    )
+    st.stop()
 
 # ── Clean Academic CSS Design ──────────────────────────────────────────────────
 st.markdown("""
