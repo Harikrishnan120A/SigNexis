@@ -186,6 +186,25 @@ streamlit run app.py
 
 Opens at `http://localhost:8501`.
 
+### Deploy on Streamlit Community Cloud
+
+Use these exact settings in Streamlit Community Cloud:
+
+- Repository: `Harikrishnan120A/SigNexis`
+- Branch: `main`
+- Main file path: `app.py`
+
+This repository now includes:
+- `runtime.txt` (`python-3.11`) for consistent cloud Python runtime
+- `.streamlit/config.toml` for server defaults
+
+Required runtime artifacts:
+- `dsp/`, `ml/`, and `audio/` source packages
+- `models/signal_classifier.joblib`
+- `models/evaluation_results.json`
+
+If required modules or model artifacts are missing at deployment time, the app exits gracefully with a clear error message instead of crashing.
+
 ### Step 4 – Run Tests
 
 ```bash
