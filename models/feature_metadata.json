@@ -1,0 +1,19 @@
+{
+  "feature_names": [
+    "mean",
+    "std",
+    "rms",
+    "max_amplitude",
+    "min_amplitude",
+    "peak_to_peak",
+    "zero_crossing_rate",
+    "dominant_freq",
+    "spectral_centroid",
+    "spectral_bandwidth",
+    "low_freq_energy",
+    "high_freq_energy",
+    "signal_power"
+  ],
+  "num_features": 13,
+  "description": "Canonical feature order for SigNexis RandomForest model. Both training and inference MUST use this exact order."
+}
