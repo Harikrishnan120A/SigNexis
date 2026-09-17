@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="SigNexis digital signal analysis and noise classification project.">
+  <title>SigNexis | Digital Signal Analysis</title>
+  <style>
+    :root { color-scheme: dark; --ink: #edf4f4; --muted: #a7b9ba; --line: #294345; --accent: #7be0bd; --bg: #0d1719; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 85% 10%, #194449 0, transparent 34%), var(--bg); color: var(--ink); font: 16px/1.6 Georgia, serif; }
+    main { width: min(920px, calc(100% - 40px)); margin: 0 auto; padding: 12vh 0 10vh; }
+    .tag { color: var(--accent); font: 700 12px/1.2 Consolas, monospace; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { max-width: 700px; margin: 22px 0 18px; font-size: clamp(3rem, 8vw, 6.6rem); line-height: .94; letter-spacing: -.04em; }
+    p { max-width: 650px; color: var(--muted); font-size: 1.18rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 34px 0 76px; }
+    a { display: inline-block; padding: 12px 18px; border: 1px solid var(--accent); color: var(--accent); text-decoration: none; }
+    a:hover, a:focus-visible { background: var(--accent); color: var(--bg); }
+    section { border-top: 1px solid var(--line); padding-top: 24px; }
+    ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px 28px; padding: 0; list-style: none; color: var(--muted); }
+    li::before { content: "// "; color: var(--accent); font-family: Consolas, monospace; }
+    footer { margin-top: 70px; color: var(--muted); font: 13px Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="tag">ECE / DSP / Machine Learning</div>
+    <h1>SigNexis</h1>
+    <p>Interactive digital signal analysis, noise classification, and adaptive filtering powered by Python, SciPy, scikit-learn, and Streamlit.</p>
+    <div class="actions">
+      <a href="https://github.com/Harikrishnan120A/SigNexis">View source on GitHub</a>
+      <a href="https://streamlit.io/cloud">Deploy the dashboard</a>
+    </div>
+    <section>
+      <div class="tag">Pipeline</div>
+      <ul>
+        <li>Signal generation</li>
+        <li>Nyquist and aliasing analysis</li>
+        <li>FFT spectral inspection</li>
+        <li>Random Forest classification</li>
+        <li>Adaptive digital filtering</li>
+        <li>Before / after quality metrics</li>
+      </ul>
+    </section>
+    <footer>GitHub Pages hosts this project page. The Python dashboard runs on a Streamlit-capable host.</footer>
+  </main>
+</body>
+</html>
