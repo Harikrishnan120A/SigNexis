@@ -8,7 +8,8 @@ import sys, json, warnings
 import numpy as np
 from pathlib import Path
 
-sys.path.insert(0, ".")
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
 warnings.filterwarnings("ignore")
 
 PASS = []
@@ -363,7 +364,7 @@ from ml.dataset import generate_dataset, DATASET_PATH
 from ml.train import FEATURE_NAMES as train_feat_names
 
 # 6a. Feature name alignment: training features == inference features
-meta_path = Path("models/feature_metadata.json")
+meta_path = ROOT / "models" / "feature_metadata.json"
 if meta_path.exists():
     with open(meta_path) as f:
         meta = json.load(f)
@@ -399,7 +400,7 @@ else:
 
 # 6d. Feature scaling: RF does not need scaling, but check for data-dependent normalisation
 # Scan features.py for any global statistics being saved/used
-with open("dsp/features.py") as f:
+with open(ROOT / "dsp" / "features.py") as f:
     feat_src = f.read()
 if "fit" not in feat_src and "StandardScaler" not in feat_src and "MinMaxScaler" not in feat_src:
     ok("No scaler fitted on training data that would cause test leakage")
@@ -407,7 +408,7 @@ else:
     warn("Scaler found in features.py", "Verify scaler is fit only on training data")
 
 # 6e. Training uses stratified split
-with open("ml/train.py") as f:
+with open(ROOT / "ml" / "train.py") as f:
     train_src = f.read()
 if "stratify=y" in train_src:
     ok("Stratified split used (stratify=y)")
@@ -472,7 +473,7 @@ print("\n" + "="*70)
 print("SECTION 8: ML ACCURACY - CONFUSION MATRIX vs STORED RESULTS")
 print("="*70)
 
-eval_path = Path("models/evaluation_results.json")
+eval_path = ROOT / "models" / "evaluation_results.json"
 if eval_path.exists():
     with open(eval_path) as f:
         stored = json.load(f)

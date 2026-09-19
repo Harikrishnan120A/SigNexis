@@ -139,18 +139,18 @@ SigNexis/
 
 ---
 
-## Installation
+## Installation and Local Run
 
 ```bash
 # Clone / open project
 cd SigNexis
 
 # Create virtual environment (recommended)
-python -m venv venv
+python -m venv .venv
 # Windows:
-venv\Scripts\activate
+.venv\Scripts\activate
 # Linux/macOS:
-source venv/bin/activate
+source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -158,35 +158,15 @@ pip install -r requirements.txt
 
 ---
 
-## Usage
-
-### Step 1 – Generate Training Dataset
+### Launch the Dashboard
 
 ```bash
-python -m ml.dataset
-```
-
-Generates `data/signal_dataset.csv` (2400 rows) and `models/feature_metadata.json`.
-
-### Step 2 – Train the Model
-
-```bash
-python -m ml.train
-```
-
-Trains the Random Forest, prints accuracy + classification report, saves:
-- `models/signal_classifier.joblib`
-- `models/evaluation_results.json`
-
-### Step 3 – Launch the Dashboard
-
-```bash
-streamlit run app.py
+python -m streamlit run app.py
 ```
 
 Opens at `http://localhost:8501`.
 
-### Step 4 – Run Tests
+### Run Tests
 
 ```bash
 pytest
@@ -197,6 +177,12 @@ Or with verbose output:
 ```bash
 pytest -v
 ```
+
+## Deployment
+
+Deploy `app.py` on a Python-compatible Streamlit host such as Streamlit Community Cloud. The host should install `requirements.txt`; the bundled model and data files must remain in the repository.
+
+GitHub Pages cannot execute the Python backend. The `docs/` site is only a static project landing page, while a Streamlit-compatible host runs the actual SigNexis application. No deployment URL is fabricated here.
 
 ---
 

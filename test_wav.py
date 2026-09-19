@@ -2,7 +2,10 @@
 import sys
 import numpy as np
 import io
-sys.path.insert(0, ".")
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
 
 from audio.wav_processor import load_wav
 import soundfile as sf

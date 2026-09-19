@@ -25,7 +25,8 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-sys.path.insert(0, ".")
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
 
 from dsp.signal_generator import generate_signal, SIGNAL_CLASSES
 from dsp.sampling import analyse_sampling, check_nyquist_condition, nyquist_frequency
@@ -62,7 +63,7 @@ def record(test_name, passed, details=""):
 # 1. Feature order check between training and inference
 # -----------------------------------------------------------------------------
 print("\n--- 1. FEATURE ORDER & METADATA VERIFICATION ---")
-meta_path = Path("models/feature_metadata.json")
+meta_path = ROOT / "models" / "feature_metadata.json"
 with open(meta_path) as f:
     meta = json.load(f)
 

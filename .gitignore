@@ -25,10 +25,15 @@ build/
 # Streamlit
 .streamlit/secrets.toml
 
-# Data and models (large files – generate with scripts)
+# Data and models are required at runtime; keep generated training artefacts out
+# of this ignore list so cloud deployments receive the bundled model and data.
 data/signal_dataset.csv
 models/signal_classifier.joblib
 models/evaluation_results.json
+
+!data/signal_dataset.csv
+!models/signal_classifier.joblib
+!models/evaluation_results.json
 
 # Keep metadata
 !models/feature_metadata.json

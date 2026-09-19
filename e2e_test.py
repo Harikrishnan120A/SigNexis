@@ -1,7 +1,10 @@
 """End-to-end pipeline test for SigNexis."""
 import sys
 import numpy as np
-sys.path.insert(0, ".")
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
 
 print("=" * 60)
 print("END-TO-END PIPELINE TEST")

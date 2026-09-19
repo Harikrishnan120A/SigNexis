@@ -786,7 +786,7 @@ elif selected_page == "Sampling & Aliasing":
         st.markdown("""<div class="status-banner-info">
             <b>Mathematical Foundation:</b> According to the Nyquist-Shannon sampling theorem, an analog bandlimited signal
             can be perfectly reconstructed from its discrete samples if and only if the sampling rate strictly exceeds twice the highest
-            frequency component ($f_s > 2 f_{\max}$). When sampled below this threshold, frequencies reflect according to:
+            frequency component ($f_s > 2 f_{\\max}$). When sampled below this threshold, frequencies reflect according to:
             $$f_{\\text{alias}} = \\left| f_0 - \\operatorname{round}\\left(\\frac{f_0}{f_s}\\right) f_s \\right|$$
         </div>""", unsafe_allow_html=True)
 
