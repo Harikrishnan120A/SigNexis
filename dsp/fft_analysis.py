@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 import numpy as np
-from scipy.fft import fft, fftfreq
+from scipy.fft import rfft, rfftfreq
 
 
 @dataclass
@@ -52,18 +52,16 @@ def compute_fft(
     n = len(signal)
     if n == 0:
         raise ValueError("Cannot compute FFT of an empty signal.")
+    if sampling_rate <= 0:
+        raise ValueError("sampling_rate must be positive.")
 
     # ── FFT ──────────────────────────────────────────────────────────────────
-    spectrum = fft(signal)
-    freqs_full = fftfreq(n, d=1.0 / sampling_rate)
-
-    # Positive-frequency half only
-    half = n // 2
-    freqs = freqs_full[:half]
-    magnitude = (2.0 / n) * np.abs(spectrum[:half])
-
-    # DC bin: do not double it
+    spectrum = rfft(signal)
+    freqs = rfftfreq(n, d=1.0 / sampling_rate)
+    magnitude = (2.0 / n) * np.abs(spectrum)
     magnitude[0] /= 2.0
+    if n % 2 == 0 and len(magnitude) > 1:
+        magnitude[-1] /= 2.0
 
     # ── Dominant frequency ────────────────────────────────────────────────────
     peak_idx = int(np.argmax(magnitude))
@@ -71,6 +69,11 @@ def compute_fft(
 
     # ── Spectral centroid and bandwidth ───────────────────────────────────────
     power = magnitude ** 2
+    if len(power) > 1:
+        if n % 2 == 0:
+            power[1:-1] *= 0.5
+        else:
+            power[1:] *= 0.5
     total_power = float(np.sum(power))
 
     if total_power > 0:

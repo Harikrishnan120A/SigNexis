@@ -73,7 +73,9 @@ def extract_features(
     peak_to_peak = max_amp - min_amp
 
     n = len(signal)
-    sign_changes = np.sum(np.diff(np.sign(signal)) != 0)
+    signs = np.sign(signal)
+    signs = signs[signs != 0]
+    sign_changes = np.sum(np.diff(signs) != 0) if len(signs) > 1 else 0
     zcr = float(sign_changes) / float(n - 1) if n > 1 else 0.0
 
     # ── Frequency-domain ─────────────────────────────────────────────────────

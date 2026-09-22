@@ -136,9 +136,10 @@ def train(
         print(f"\n  Model saved -> {model_path}")
 
     # ── Save feature metadata ─────────────────────────────────────────────────
-    save_feature_metadata(METADATA_PATH)
+    metadata_path = model_path.parent / "feature_metadata.json"
+    save_feature_metadata(metadata_path)
     if verbose:
-        print(f"  Feature metadata saved -> {METADATA_PATH}")
+        print(f"  Feature metadata saved -> {metadata_path}")
 
     # ── Save evaluation results ───────────────────────────────────────────────
     eval_results = {

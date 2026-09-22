@@ -59,3 +59,20 @@ class TestFFTBasics:
         result = compute_fft(signal, fs)
         # low + high energy fractions must be <= 1
         assert result.low_freq_energy + result.high_freq_energy <= 1.0 + 1e-9
+
+    def test_odd_length_includes_highest_positive_bin(self):
+        signal = np.sin(2 * np.pi * 2 * np.arange(5) / 5)
+        result = compute_fft(signal, 5)
+        assert result.freqs[-1] == pytest.approx(2.0)
+
+    def test_even_length_includes_nyquist_bin(self):
+        signal = (-1.0) ** np.arange(8)
+        result = compute_fft(signal, 8)
+        assert result.freqs[-1] == pytest.approx(4.0)
+        assert result.magnitude[-1] == pytest.approx(1.0)
+
+    def test_dc_and_tone_power_are_weighted_correctly(self):
+        fs = 8000
+        t = np.arange(fs) / fs
+        result = compute_fft(2.0 + np.sin(2 * np.pi * 1000 * t), fs)
+        assert result.spectral_centroid == pytest.approx(1000.0 / 9.0, abs=1.0)

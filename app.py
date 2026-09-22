@@ -14,6 +14,7 @@ import json
 import sys
 from pathlib import Path
 import io
+import hashlib
 
 ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
@@ -327,6 +328,7 @@ def initialize_session_state():
         "nav_page": "Dashboard",
         "audio_loaded": False,
         "audio_info": None,
+        "uploaded_file_key": None,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -685,21 +687,30 @@ elif selected_page == "Signal Generator":
 
         if uploaded_wav is not None:
             try:
-                wav_info = load_wav(uploaded_wav)
-                for w in wav_info.warnings:
-                    st.warning(f"Audio Parser Notice: {w}")
+                file_bytes = uploaded_wav.getvalue()
+                file_key = hashlib.sha256(file_bytes).hexdigest()
+                if file_key != st.session_state.uploaded_file_key:
+                    wav_info = load_wav(io.BytesIO(file_bytes))
+                    for w in wav_info.warnings:
+                        st.warning(f"Audio Parser Notice: {w}")
 
-                st.session_state.t = np.arange(len(wav_info.signal)) / float(wav_info.sampling_rate)
-                st.session_state.clean = None  # No ground truth clean reference for arbitrary audio
-                st.session_state.noisy = wav_info.signal
-                st.session_state.sampling_rate = float(wav_info.sampling_rate)
-                st.session_state.frequency = float(compute_fft(wav_info.signal, wav_info.sampling_rate).dominant_freq)
-                st.session_state.audio_loaded = True
+                    st.session_state.t = np.arange(len(wav_info.signal)) / float(wav_info.sampling_rate)
+                    st.session_state.clean = None  # No ground truth clean reference for arbitrary audio
+                    st.session_state.noisy = wav_info.signal
+                    st.session_state.sampling_rate = float(wav_info.sampling_rate)
+                    st.session_state.frequency = float(compute_fft(wav_info.signal, wav_info.sampling_rate).dominant_freq)
+                    st.session_state.audio_loaded = True
+                    st.session_state.uploaded_file_key = file_key
+                    st.session_state.filtered = None
+                    st.session_state.prediction = None
+                    st.session_state.filter_info = None
+                    st.session_state.quality_before = None
+                    st.session_state.quality_after = None
 
-                execute_pipeline_analysis()
-
-                st.success(f"Successfully loaded '{wav_info.filename}': {wav_info.num_samples:,} samples @ {wav_info.sampling_rate} Hz.")
-                st.rerun()
+                    execute_pipeline_analysis()
+                    st.success(f"Successfully loaded '{wav_info.filename}': {wav_info.num_samples:,} samples @ {wav_info.sampling_rate} Hz.")
+                else:
+                    st.info("This WAV file is already loaded. Results below are current.")
             except Exception as e:
                 st.error(f"Failed to process WAV file: {e}")
 

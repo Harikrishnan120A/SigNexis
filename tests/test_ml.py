@@ -18,6 +18,10 @@ from ml.train import train
 from ml.predict import predict_signal, load_model
 
 
+class IncompatibleModel:
+    n_features_in_ = NUM_FEATURES - 1
+
+
 class TestDataset:
     def test_generate_dataset_shape(self):
         """Dataset should have correct columns and ≥ 6 rows."""
@@ -122,3 +126,12 @@ class TestPrediction:
         signal = np.sin(2 * np.pi * 1000 * t)
         with pytest.raises(FileNotFoundError):
             predict_signal(signal, 8000, Path("/nonexistent/model.joblib"))
+
+    def test_model_feature_count_mismatch_raises(self, tmp_path):
+        import joblib
+
+        model_path = tmp_path / "incompatible.joblib"
+        joblib.dump(IncompatibleModel(), model_path)
+        signal = np.sin(2 * np.pi * 1000 * np.arange(8000) / 8000)
+        with pytest.raises(ValueError, match="expects 12 features"):
+            predict_signal(signal, 8000, model_path)

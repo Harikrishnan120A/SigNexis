@@ -62,6 +62,19 @@ def generate_signal(
     clean_signal : ndarray  –  noiseless signal at discrete samples
     noisy_signal : ndarray  –  signal after noise injection
     """
+    if signal_type not in {"sine", "multi_sine"}:
+        raise ValueError("signal_type must be 'sine' or 'multi_sine'.")
+    if frequency <= 0:
+        raise ValueError("frequency must be positive.")
+    if amplitude < 0:
+        raise ValueError("amplitude must be non-negative.")
+    if duration <= 0:
+        raise ValueError("duration must be positive.")
+    if sampling_rate <= 0:
+        raise ValueError("sampling_rate must be positive.")
+    if noise_amplitude < 0:
+        raise ValueError("noise_amplitude must be non-negative.")
+
     if rng is None:
         rng = np.random.default_rng()
 
@@ -75,7 +88,7 @@ def generate_signal(
             + 0.5 * amplitude * np.sin(2 * np.pi * 2 * frequency * t)
             + 0.25 * amplitude * np.sin(2 * np.pi * 3 * frequency * t)
         )
-    else:  # default: single sine
+    else:  # single sine
         clean = amplitude * np.sin(2 * np.pi * frequency * t)
 
     # ── noise injection ───────────────────────────────────────────────────────

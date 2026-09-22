@@ -108,9 +108,9 @@ if abs(r.dominant_freq - f0) < (fs / N):   # within one frequency bin
 else:
     fail("FFT dominant frequency", f"Expected {f0}, got {r.dominant_freq:.1f}")
 
-# 2b. Frequency axis max = Nyquist
-if abs(r.freqs[-1] - (fs/2 - fs/N)) < 1.0:
-    ok(f"Frequency axis upper bound ≈ Nyquist ({r.freqs[-1]:.1f} Hz)")
+# 2b. Frequency axis includes Nyquist for an even-length real FFT
+if abs(r.freqs[-1] - fs/2) < 1.0:
+    ok(f"Frequency axis upper bound = Nyquist ({r.freqs[-1]:.1f} Hz)")
 else:
     fail("Frequency axis upper bound", f"Expected ~{fs/2}, got {r.freqs[-1]:.1f}")
 

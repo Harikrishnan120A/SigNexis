@@ -74,3 +74,8 @@ class TestFeatureExtraction:
         signal = np.array([-1.0, 0.0, 1.0])
         features = extract_features(signal, 8000)
         assert features["peak_to_peak"] == pytest.approx(2.0)
+
+    def test_zero_run_counts_as_one_crossing(self):
+        signal = np.array([1.0, 0.0, -1.0])
+        features = extract_features(signal, 8000)
+        assert features["zero_crossing_rate"] == pytest.approx(0.5)

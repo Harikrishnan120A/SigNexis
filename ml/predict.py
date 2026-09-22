@@ -51,6 +51,27 @@ def load_model(model_path: Path = MODEL_PATH):
     return _model_cache[key]
 
 
+def _validate_model_contract(model, model_path: Path) -> None:
+    """Reject models whose persisted input shape differs from this pipeline."""
+    expected = len(FEATURE_NAMES)
+    actual = getattr(model, "n_features_in_", None)
+    if actual is not None and actual != expected:
+        raise ValueError(
+            f"Model expects {actual} features, but this pipeline provides {expected}."
+        )
+
+    metadata_path = Path(model_path).parent / "feature_metadata.json"
+    if metadata_path.exists():
+        import json
+
+        with metadata_path.open(encoding="utf-8") as metadata_file:
+            metadata = json.load(metadata_file)
+        if metadata.get("feature_names") != FEATURE_NAMES:
+            raise ValueError(
+                f"Feature metadata does not match the active pipeline: {metadata_path}"
+            )
+
+
 @dataclass
 class Prediction:
     """Container for ML prediction output."""
@@ -91,6 +112,7 @@ def predict_signal(
 
     # ── Load model ─────────────────────────────────────────────────────────────
     model = load_model(model_path)
+    _validate_model_contract(model, Path(model_path))
 
     # ── Predict ────────────────────────────────────────────────────────────────
     predicted_class = str(model.predict(X)[0])
