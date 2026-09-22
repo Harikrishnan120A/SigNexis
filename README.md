@@ -180,7 +180,7 @@ pytest -v
 
 ## Deployment
 
-Deploy `app.py` on a Python-compatible Streamlit host such as Streamlit Community Cloud. The host should install `requirements.txt`; the bundled model and data files must remain in the repository.
+Deploy `app.py` on a Python-compatible Streamlit host such as Streamlit Community Cloud. The host should install `requirements.txt`; the bundled model and data files must remain in the repository. GitHub Pages only hosts the static landing page and cannot run the Python dashboard or accept audio uploads.
 
 GitHub Pages cannot execute the Python backend. The `docs/` site is only a static project landing page, while a Streamlit-compatible host runs the actual SigNexis application. No deployment URL is fabricated here.
 
