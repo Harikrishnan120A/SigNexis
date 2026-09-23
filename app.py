@@ -353,6 +353,7 @@ def initialize_session_state():
         "filter_info": None,
         "quality_before": None,
         "quality_after": None,
+        "pipeline_error": None,
         "nav_page": "Dashboard",
         "audio_loaded": False,
         "audio_info": None,
@@ -385,6 +386,7 @@ def execute_signal_generation():
     st.session_state.filter_info = None
     st.session_state.quality_before = None
     st.session_state.quality_after = None
+    st.session_state.pipeline_error = None
     st.session_state.audio_loaded = False
 
 def execute_pipeline_analysis():
@@ -395,24 +397,31 @@ def execute_pipeline_analysis():
     noisy = st.session_state.noisy
     fs = float(st.session_state.sampling_rate)
     f0 = float(st.session_state.frequency)
+    st.session_state.pipeline_error = None
 
-    # 1. ML Noise Classification
     try:
+        # 1. ML Noise Classification
         pred = predict_signal(noisy, fs, MODEL_PATH)
         st.session_state.prediction = pred
-    except Exception:
+
+        # 2. Adaptive Filtering
+        filtered, finfo = apply_recommended_filter(noisy, fs, pred.predicted_class, f0)
+        st.session_state.filtered = filtered
+        st.session_state.filter_info = finfo
+
+        # 3. Quality Metrics
+        clean = st.session_state.clean
+        st.session_state.quality_before = compute_quality(noisy, fs, clean)
+        st.session_state.quality_after = compute_quality(filtered, fs, clean)
+        return True
+    except Exception as exc:
         st.session_state.prediction = None
-        return
-
-    # 2. Adaptive Filtering
-    filtered, finfo = apply_recommended_filter(noisy, fs, pred.predicted_class, f0)
-    st.session_state.filtered = filtered
-    st.session_state.filter_info = finfo
-
-    # 3. Quality Metrics
-    clean = st.session_state.clean
-    st.session_state.quality_before = compute_quality(noisy, fs, clean)
-    st.session_state.quality_after = compute_quality(filtered, fs, clean)
+        st.session_state.filtered = None
+        st.session_state.filter_info = None
+        st.session_state.quality_before = None
+        st.session_state.quality_after = None
+        st.session_state.pipeline_error = f"{type(exc).__name__}: {exc}"
+        return False
 
 # If no signal generated yet, initialize automatically on startup
 if st.session_state.noisy is None:
@@ -454,7 +463,9 @@ with st.sidebar:
             st.rerun()
     with col_btn2:
         if st.button("Analyze", use_container_width=True, type="primary"):
-            execute_pipeline_analysis()
+            ok = execute_pipeline_analysis()
+            if not ok:
+                st.error("Pipeline analysis failed. Check System Status for details.")
             st.rerun()
 
     st.markdown("---")
@@ -464,6 +475,12 @@ with st.sidebar:
         st.markdown('<span style="color:#4ade80;font-weight:600;font-size:0.8rem;">● RF Model Ready (200 Trees)</span>', unsafe_allow_html=True)
     else:
         st.markdown('<span style="color:#ef4444;font-weight:600;font-size:0.8rem;">● Model Missing</span>', unsafe_allow_html=True)
+
+    if st.session_state.pipeline_error:
+        st.markdown('<span style="color:#ef4444;font-weight:600;font-size:0.8rem;">● Pipeline: Failed</span>', unsafe_allow_html=True)
+        st.caption(st.session_state.pipeline_error)
+    else:
+        st.markdown('<span style="color:#4ade80;font-weight:600;font-size:0.8rem;">● Pipeline: Ready</span>', unsafe_allow_html=True)
 
     nyq_limit = st.session_state.sampling_rate / 2.0
     if st.session_state.frequency < nyq_limit:
@@ -487,6 +504,9 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
+if st.session_state.pipeline_error:
+    st.warning(f"Pipeline execution error: {st.session_state.pipeline_error}")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # TAB 1: DASHBOARD
@@ -674,9 +694,12 @@ elif selected_page == "Signal Generator":
                 st.session_state.noise_type = noise_type
                 st.session_state.noise_amplitude = noise_amp
                 execute_signal_generation()
-                execute_pipeline_analysis()
-                st.success("Signal synthesized and pipeline refreshed.")
-                st.rerun()
+                ok = execute_pipeline_analysis()
+                if ok:
+                    st.success("Signal synthesized and pipeline refreshed.")
+                    st.rerun()
+                else:
+                    st.error("Signal synthesized, but pipeline analysis failed. Check System Status for details.")
 
         with col_disp:
             st.markdown('<div class="section-header">Synthesized Waveform Verification</div>', unsafe_allow_html=True)
@@ -725,10 +748,15 @@ elif selected_page == "Signal Generator":
                 st.session_state.frequency = float(compute_fft(wav_info.signal, wav_info.sampling_rate).dominant_freq)
                 st.session_state.audio_loaded = True
 
-                execute_pipeline_analysis()
-
-                st.success(f"Successfully loaded '{wav_info.filename}': {wav_info.num_samples:,} samples @ {wav_info.sampling_rate} Hz.")
-                st.rerun()
+                ok = execute_pipeline_analysis()
+                if ok:
+                    st.success(f"Successfully loaded '{wav_info.filename}': {wav_info.num_samples:,} samples @ {wav_info.sampling_rate} Hz.")
+                    st.rerun()
+                else:
+                    st.warning(
+                        f"Loaded '{wav_info.filename}', but pipeline analysis failed. "
+                        "Check System Status for details."
+                    )
             except Exception as e:
                 st.error(f"Failed to process WAV file: {e}")
 
